@@ -17,49 +17,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     const loadingState = document.getElementById("loading-state");
     const successState = document.getElementById("success-state");
 
-    // Read parameters from URL
     const params = new URLSearchParams(window.location.search);
 
     const userId = params.get("userId");
     const secret = params.get("secret");
 
     if (!userId || !secret) {
-
         loadingState.innerHTML = `
-            <h2 style="color:#ef4444;margin-bottom:10px;">
-                Invalid Verification Link
-            </h2>
-
-            <p style="color:#64748b;">
-                This verification link is missing required information.
-            </p>
+            <h2 style="color:#ef4444">Invalid verification link</h2>
+            <p>This verification link is invalid.</p>
         `;
-
         return;
     }
 
     try {
 
-        const client = new Appwrite.Client();
+        const response = await fetch(
+            "https://cloud.appwrite.io/v1/account/verification",
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Appwrite-Project": "6a410d33003d880c3006"
+                },
+                body: JSON.stringify({
+                    userId,
+                    secret
+                })
+            }
+        );
 
-        client
-            .setEndpoint("https://cloud.appwrite.io/v1")
-            .setProject("6a410d33003d880c3006");
+        const result = await response.json();
 
-        const account = new Appwrite.Account(client);
+        if (!response.ok) {
+            throw new Error(result.message);
+        }
 
-        // Verify email
-        await account.updateVerification(userId, secret);
-
-        // Hide loading
         loadingState.classList.remove("active-state");
         loadingState.classList.add("hidden-state");
 
-        // Show success
         successState.classList.remove("hidden-state");
         successState.classList.add("active-state");
 
-        // Replay check animation
         const path = document.querySelector(".path");
 
         if (path) {
@@ -69,32 +68,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 "dash 1s cubic-bezier(0.65,0,0.45,1) forwards";
         }
 
-        // Optional:
-        // Automatically open Bloom9 after 2 seconds
-        //
-        // setTimeout(() => {
-        //     window.location.href = "bloom9://verified";
-        // }, 2000);
+    } catch (e) {
 
-    } catch (error) {
-
-        console.error(error);
+        console.error(e);
 
         loadingState.innerHTML = `
             <div style="text-align:center">
+                <div style="font-size:60px">❌</div>
 
-                <div style="font-size:60px;margin-bottom:15px;">
-                    ❌
-                </div>
-
-                <h2 style="color:#ef4444;margin-bottom:10px;">
+                <h2 style="color:#ef4444">
                     Verification Failed
                 </h2>
 
-                <p style="color:#64748b;">
-                    ${error.message}
-                </p>
-
+                <p>${e.message}</p>
             </div>
         `;
     }

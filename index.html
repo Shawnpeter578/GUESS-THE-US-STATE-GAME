@@ -9,46 +9,98 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
         
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        fontFamily: {
-                            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        },
-                        colors: {
-                            bloom: {
-                                50: '#f0f9ff',
-                                100: '#e0f2fe',
-                                500: '#0ea5e9', // Primary brand color extracted from logo
-                                600: '#0284c7',
-                            }
-                        },
-                        animation: {
-                            'spin-slow': 'spin 2s linear infinite',
-                            'float': 'float 3s ease-in-out infinite',
-                            'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                            'fade-in': 'fadeIn 0.4s ease-out forwards',
-                        },
-                        keyframes: {
-                            float: {
-                                '0%, 100%': { transform: 'translateY(0)' },
-                                '50%': { transform: 'translateY(-10px)' },
-                            },
-                            slideUp: {
-                                '0%': { transform: 'translateY(20px)', opacity: '0' },
-                                '100%': { transform: 'translateY(0)', opacity: '1' },
-                            },
-                            fadeIn: {
-                                '0%': { opacity: '0' },
-                                '100%': { opacity: '1' },
-                            }
-                        }
-                    }
-                }
-            }
-        </script>
+      <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2"></script>
 
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+    const loadingState = document.getElementById("loading-state");
+    const successState = document.getElementById("success-state");
+
+    // Read parameters from URL
+    const params = new URLSearchParams(window.location.search);
+
+    const userId = params.get("userId");
+    const secret = params.get("secret");
+
+    if (!userId || !secret) {
+
+        loadingState.innerHTML = `
+            <h2 style="color:#ef4444;margin-bottom:10px;">
+                Invalid Verification Link
+            </h2>
+
+            <p style="color:#64748b;">
+                This verification link is missing required information.
+            </p>
+        `;
+
+        return;
+    }
+
+    try {
+
+        const client = new Appwrite.Client();
+
+        client
+            .setEndpoint("https://cloud.appwrite.io/v1")
+            .setProject("6a410d33003d880c3006");
+
+        const account = new Appwrite.Account(client);
+
+        // Verify email
+        await account.updateVerification(userId, secret);
+
+        // Hide loading
+        loadingState.classList.remove("active-state");
+        loadingState.classList.add("hidden-state");
+
+        // Show success
+        successState.classList.remove("hidden-state");
+        successState.classList.add("active-state");
+
+        // Replay check animation
+        const path = document.querySelector(".path");
+
+        if (path) {
+            path.style.animation = "none";
+            path.offsetHeight;
+            path.style.animation =
+                "dash 1s cubic-bezier(0.65,0,0.45,1) forwards";
+        }
+
+        // Optional:
+        // Automatically open Bloom9 after 2 seconds
+        //
+        // setTimeout(() => {
+        //     window.location.href = "bloom9://verified";
+        // }, 2000);
+
+    } catch (error) {
+
+        console.error(error);
+
+        loadingState.innerHTML = `
+            <div style="text-align:center">
+
+                <div style="font-size:60px;margin-bottom:15px;">
+                    ❌
+                </div>
+
+                <h2 style="color:#ef4444;margin-bottom:10px;">
+                    Verification Failed
+                </h2>
+
+                <p style="color:#64748b;">
+                    ${error.message}
+                </p>
+
+            </div>
+        `;
+    }
+
+});
+</script>
         <style>
             body {
                 background-color: #fafafa;

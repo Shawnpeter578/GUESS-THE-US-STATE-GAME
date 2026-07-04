@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bloom9 - Email Verification</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        },
+                        colors: {
+                            bloom: {
+                                50: '#f0f9ff',
+                                100: '#e0f2fe',
+                                500: '#0ea5e9', // Primary brand color extracted from logo
+                                600: '#0284c7',
+                            }
+                        },
+                        animation: {
+                            'spin-slow': 'spin 2s linear infinite',
+                            'float': 'float 3s ease-in-out infinite',
+                            'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                            'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        },
+                        keyframes: {
+                            float: {
+                                '0%, 100%': { transform: 'translateY(0)' },
+                                '50%': { transform: 'translateY(-10px)' },
+                            },
+                            slideUp: {
+                                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                                '100%': { transform: 'translateY(0)', opacity: '1' },
+                            },
+                            fadeIn: {
+                                '0%': { opacity: '0' },
+                                '100%': { opacity: '1' },
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+
+        <style>
+            body {
+                background-color: #fafafa;
+                /* Subtle, elegant gradient background */
+                background-image: 
+                    radial-gradient(at 0% 0%, hsla(200,100%,94%,1) 0, transparent 50%), 
+                    radial-gradient(at 100% 100%, hsla(200,100%,94%,1) 0, transparent 50%);
+                background-attachment: fixed;
+                color: #334155;
+            }
+
+            /* Glassmorphism card effect */
+            .glass-card {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                box-shadow: 0 20px 40px -15px rgba(14, 165, 233, 0.05);
+            }
+
+            /* Smooth transition for state changes */
+            .state-transition {
+                transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .hidden-state {
+                opacity: 0;
+                pointer-events: none;
+                transform: scale(0.98);
+                position: absolute;
+                inset: 0;
+            }
+
+            .active-state {
+                opacity: 1;
+                pointer-events: auto;
+                transform: scale(1);
+                position: relative;
+            }
+
+            /* Elegant Checkmark Animation */
+            .success-icon-container {
+                width: 72px;
+                height: 72px;
+                border-radius: 50%;
+                background-color: #f0f9ff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 24px;
+                position: relative;
+            }
+            
+            .success-icon-container::before {
+                content: '';
+                position: absolute;
+                inset: -8px;
+                border-radius: 50%;
+                background: #e0f2fe;
+                z-index: -1;
+                animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            }
+
+            .path {
+                stroke-dasharray: 1000;
+                stroke-dashoffset: 0;
+                animation: dash 1.5s ease-in-out;
+            }
+
+            @keyframes dash {
+                0% { stroke-dashoffset: 1000; }
+                100% { stroke-dashoffset: 0; }
+            }
+
+            @keyframes pulse-ring {
+                0% { transform: scale(0.8); opacity: 0.5; }
+                80%, 100% { transform: scale(1.3); opacity: 0; }
+            }
+            
+            /* Modern Spinner */
+            .loader {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: inline-block;
+                position: relative;
+                background: linear-gradient(0deg, rgba(14, 165, 233, 0.2) 33%, #0ea5e9 100%);
+                box-sizing: border-box;
+                animation: rotation 1s linear infinite;
+            }
+            .loader::after {
+                content: '';  
+                box-sizing: border-box;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: white; /* Matches card inner background */
+            }
+            @keyframes rotation {
+                0% { transform: rotate(0deg) }
+                100% { transform: rotate(360deg) }
+            }
+        </style>
+    </head>
+
+    <body class="min-h-screen flex flex-col items-center justify-center p-6 antialiased">
+
+        <!-- Card Wrapper -->
+        <main class="glass-card rounded-[2rem] w-full max-w-[400px] p-10 md:p-12 relative overflow-hidden text-center z-10 flex flex-col min-h-[420px]">
+            
+            <!-- Logo Header -->
+            <header class="mb-12 shrink-0 flex justify-center items-center">
+                <div class="relative w-full max-w-[240px] aspect-[2/1] overflow-hidden rounded-xl bg-white/50 p-2 shadow-sm border border-white/40">
+                     <img src="C:\Users\shawn\Downloads\appbar.png" alt="Bloom9 Logo" class="w-full h-full object-contain drop-shadow-sm" />
+                </div>
+            </header>
+
+            <!-- Dynamic Content Area -->
+            <div class="relative flex-1 flex flex-col justify-center items-center w-full">
+                
+                <!-- STATE 1: Verifying (Loading) -->
+                <div id="loading-state" class="state-transition active-state w-full flex flex-col items-center justify-center">
+                    <div class="mb-8">
+                        <span class="loader"></span>
+                    </div>
+                    <h1 class="text-xl md:text-2xl font-bold text-slate-800 mb-2">Verifying your email</h1>
+                    <p class="text-slate-500 text-sm font-medium">Securing your Bloom9 journey...</p>
+                </div>
+
+                <!-- STATE 2: Success -->
+                <div id="success-state" class="state-transition hidden-state w-full flex flex-col items-center justify-center">
+                    
+                    <div class="success-icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-bloom-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline class="path" points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+
+                    <div class="animate-slide-up" style="animation-delay: 0.1s; opacity: 0;">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-3">Email Verified</h2>
+                    </div>
+                    
+                    <div class="animate-slide-up" style="animation-delay: 0.2s; opacity: 0;">
+                        <p class="text-slate-500 text-sm md:text-base leading-relaxed max-w-[280px] mx-auto">
+                            You can now go back to the <span class="font-semibold text-slate-700">Bloom9 app</span> to continue your magical journey.
+                        </p>
+                    </div>
+                    
+                    <!-- Action Hint -->
+                    <div class="mt-10 animate-fade-in" style="animation-delay: 0.8s; opacity: 0;">
+                        <div class="inline-flex items-center justify-center px-4 py-2 bg-slate-50 rounded-full border border-slate-100 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Safe to close this window</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const loadingState = document.getElementById('loading-state');
+                const successState = document.getElementById('success-state');
+
+                // Wait for 3 seconds then transition states
+                setTimeout(() => {
+                    // 1. Begin hiding loading state
+                    loadingState.classList.remove('active-state');
+                    loadingState.classList.add('hidden-state');
+                    
+                    // 2. Wait slightly for smooth transition, then show success
+                    setTimeout(() => {
+                        successState.classList.remove('hidden-state');
+                        successState.classList.add('active-state');
+                        
+                        // Trigger SVG path animation manually to ensure it runs when visible
+                        const path = document.querySelector('.path');
+                        if(path) {
+                            path.style.animation = 'none';
+                            path.offsetHeight; // trigger reflow
+                            path.style.animation = 'dash 1s cubic-bezier(0.65, 0, 0.45, 1) forwards';
+                        }
+                    }, 100); // Small delay to allow the loading state to scale down before success scales up
+
+                }, 3000); // 3 seconds loading simulation
+            });
+        </script>
+    </body>
+    </html>
